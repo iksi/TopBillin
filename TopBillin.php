@@ -29,6 +29,8 @@ class TopBillin
             return false;
         }
 
-        return simplexml_load_string($response, null, LIBXML_NOCDATA);
+        return json_decode(json_encode(
+            simplexml_load_string($response, null, LIBXML_NOCDATA)
+        ));
     }
 }
