@@ -29,8 +29,16 @@ class TopBillin
             return false;
         }
 
-        return json_decode(json_encode(
+        // Normalize the object
+        $object = json_decode(json_encode(
             simplexml_load_string($response, null, LIBXML_NOCDATA)
         ));
+        
+        // Make sure performance is an array
+        if (isset($object->performance) && ! is_array($object->performance)) {
+            $object->performance = array($object->performance);
+        }
+        
+        return $object;
     }
 }
