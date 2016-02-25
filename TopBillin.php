@@ -10,10 +10,9 @@
 
 namespace Iksi;
 
-class TopBillin
-{
-    public function request($url)
-    {
+class TopBillin {
+
+    public function request($url) {
         $ch = curl_init();
 
         curl_setopt($ch, CURLOPT_URL, $url);
@@ -41,4 +40,5 @@ class TopBillin
         
         return $object;
     }
+
 }
