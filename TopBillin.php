@@ -1,44 +1,49 @@
 <?php
 
 /**
- * Simple class to fetch Topbillin’ feeds
- * - http://www.topbillin.nl/xml/feeds.php
+ * fetch Topbillin’ feeds
+ * http://www.topbillin.nl/xml/feeds.php
  *
- * @author Iksi <info@iksi.cc>
- * @version 1.0
+ * @author Jurriaan <jurriaan@iksi.cc>
+ * @version 1.1
  */
 
 namespace Iksi;
 
 class TopBillin {
 
-    public function request($url) {
-        $ch = curl_init();
+  public $feed = 'http://www.topbillin.nl/xml/feed.php';
+  public $query;
 
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_HEADER, false);
+  public function __construct($artist, $hash) {
+    $this->query = http_build_query(compact('artist', 'hash'));
+  }
 
-        $response = curl_exec($ch);
-        $responseCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+  public function feed() {
+    $handle = curl_init();
 
-        curl_close($ch);
+    curl_setopt($handle, CURLOPT_URL, "{$this->feed}?{$this->query}");
+    curl_setopt($handle, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($handle, CURLOPT_HEADER, false);
 
-        if ($responseCode !== 200) {
-            return false;
-        }
+    $response = curl_exec($handle);
+    $httpcode = curl_getinfo($handle, CURLINFO_HTTP_CODE);
 
-        // Normalize the object
-        $object = json_decode(json_encode(
-            simplexml_load_string($response, null, LIBXML_NOCDATA)
-        ));
-        
-        // Make sure performance is an array
-        if (isset($object->performance) && ! is_array($object->performance)) {
-            $object->performance = array($object->performance);
-        }
-        
-        return $object;
+    curl_close($handle);
+
+    if ($httpcode !== 200) {
+      return false;
     }
+
+    $object = simplexml_load_string($response, null, LIBXML_NOCDATA);
+
+    $array = json_decode(json_encode($object), true);
+
+    if(empty($array)) {
+      return false;
+    }
+
+    return $array;
+  }
 
 }
